@@ -1,44 +1,47 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import {User} from './User'
+import { User } from "./User";
 
 @Entity()
 export class Ticket {
-    @PrimaryGeneratedColumn('uuid')
-    id!: string;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
-    @Column()
-    clientName!: string;
+  @Column()
+  clientName!: string;
 
-    @Column()
-    phoneNumber!: string;
+  @Column()
+  title!: string;
 
-    @Column()
-    address!: string;
+  @Column()
+  phoneNumber!: string;
 
-    @Column()
-    contracts!: string;
+  @Column()
+  address!: string;
 
-    @Column()
-    descriptionIssue!: string;
+  @Column()
+  contracts!: string;
 
-    @Column()
-    status!: string;
+  @Column()
+  descriptionIssue!: string;
 
-    @Column()
-    assignedTechnician!: string;
+  @Column()
+  status!: string;
 
-    @Column()
-    technicalDescripction!: string;
+  @Column()
+  assignedTechnician!: string;
 
-    @Column()
-    creationDate!: Date;
+  @Column()
+  technicalDescripction!: string;
 
-    @Column({ nullable: true })
-    solveDate!: Date;
+  @Column()
+  creationDate!: Date;
 
-    @Column()
-    softDelete!: boolean;
+  @Column({ nullable: true })
+  solveDate!: Date;
 
-    @ManyToOne(() => User, user => user.tickets)
-        user!: User[];
+  @Column()
+  softDelete!: boolean;
+
+  @ManyToOne(() => User, (user) => user.tickets)
+  user!: User[];
 }

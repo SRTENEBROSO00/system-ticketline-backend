@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Ticket } from "./../entity/Ticket";
 import { AppDataSource } from "../data-source";
 import { getIO } from "../socket.io";
+import dayjs from 'dayjs'
 
 // Ahora toca hacer
 export class TicketController {
@@ -15,6 +16,7 @@ export class TicketController {
     try {
       const {
         clientName,
+        title,
         phoneNumber,
         address,
         contracts,
@@ -29,11 +31,11 @@ export class TicketController {
 
       const requiredFields = {
         clientName,
+        title,
         phoneNumber,
         address,
         contracts,
         descriptionIssue,
-        status,
         assignedTechnician
       }
       const missingFields = Object.entries(requiredFields)
@@ -48,11 +50,12 @@ export class TicketController {
       // Recuperar y preparar los datos a crear
       const newTicket = this.ticketRepo.create({
         clientName: clientName,
+        title: title,
         phoneNumber: phoneNumber,
         address: address,
         contracts: contracts,
         descriptionIssue: descriptionIssue,
-        status: status,
+        status: "Pendiente",
         assignedTechnician: assignedTechnician,
         technicalDescripction,
         creationDate: new Date(),
@@ -74,14 +77,24 @@ export class TicketController {
 
   async getAllTicket(_req: Request, res: Response): Promise<any> {
     try {
-      const getTickets = await this.ticketRepo.find({
+      const resTickets = await this.ticketRepo.find({
         relations: [],
+        where: {softDelete: false},
       });
-      if (!getTickets || getTickets.length == 0) {
+      if (!resTickets || resTickets.length == 0) {
         return res.status(404).json({message: 'Data no found.'});
       }
 
-      res.status(200).json(getTickets);
+      //Formatear la fecha 
+      const formattedCreationDate = resTickets.map(ticket => ({
+        ...ticket,
+        creationDateFormatted : ticket.creationDate 
+        && dayjs(ticket.creationDate.toDateString() || ticket.creationDate).format('DD/MM/YYYY HH:mm')
+      }))
+      getIO().emit("ticket:getall", resTickets)
+
+      res.status(200).json(formattedCreationDate);
+      
     } catch (error) {
       res.status(500).json({ message: `Error getting data: ${error}` });
     }
@@ -108,6 +121,7 @@ export class TicketController {
     try {
       const {
         clientName,
+        title,
         phoneNumber,
         address,
         contracts,
@@ -141,12 +155,14 @@ export class TicketController {
       if(resTicketToUpdate && creationDate) resTicketToUpdate.creationDate = creationDate;
       if(resTicketToUpdate && solveDate) resTicketToUpdate.solveDate = solveDate;
       if(resTicketToUpdate && softDelete) resTicketToUpdate.softDelete = softDelete;
+      if(resTicketToUpdate && title) resTicketToUpdate.title = title;
+
 
       // Save
       const saveTicketUpdated = await this.ticketRepo.save(resTicketToUpdate)
 
       //Emit event
-      getIO().emit("ticket:update", saveTicketUpdated)
+      // getIO().emit("ticket:update", saveTicketUpdated);
       
       res.json({message: ' ✔ Ticket updated successfully', ticket: saveTicketUpdated})
     } catch (error) {
