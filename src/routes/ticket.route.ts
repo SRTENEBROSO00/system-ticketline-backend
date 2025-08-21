@@ -5,7 +5,7 @@ import { authMiddleware, testAuthMiddleware } from "../middleware/auth.middlewar
 const router = Router()
 const ticketsControllers = new TicketController();
 
-router.get('/', testAuthMiddleware, ticketsControllers.getAllTicket.bind(ticketsControllers));
+router.get('/', authMiddleware, ticketsControllers.getAllTicket.bind(ticketsControllers));
 router.get('/:id', ticketsControllers.getTicketById.bind(ticketsControllers));
 router.post('/create', ticketsControllers.createTicket.bind(ticketsControllers));
 router.patch('/:id', ticketsControllers.updateTicketById.bind(ticketsControllers));
