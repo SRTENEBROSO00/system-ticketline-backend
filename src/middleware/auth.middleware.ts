@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../config/jwt";
-import { Ticket } from "../entity/Ticket";
 
 // Extend Express Request interface to include 'user'
 declare global {
@@ -11,31 +10,38 @@ declare global {
   }
 }
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction): any  => {
-    const authHeader = req.headers.authorization;
+export const authMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): any => {
+  const authHeader = req.headers.authorization;
 
-    if(!authHeader || !authHeader.startsWith('Bearer')) {
-        return res.status(401).json({message: 'Token no provided.'});
-    }
+  if (!authHeader || !authHeader.startsWith("Bearer")) {
+    return res.status(401).json({ message: "Token not provided." });
+  }
 
-    const token = authHeader.split(' ')[1];
+  const token = authHeader.split(" ")[1];
 
-    try {
-        const userData = verifyToken(token);
-        req.user = userData;
-        next()
-    } catch {
-        return res.status(403).json({ mensaje: 'Token no valid' });
-    }
-}
+  try {
+    const userData = verifyToken(token);
+    req.user = userData;
+    next();
+  } catch {
+    return res.status(403).json({ message: "Token not valid." });
+  }
+};
 
-export const testAuthMiddleware = (req: Request, res: Response, next: NextFunction): any  => {
+export const testAuthMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): any => {
   req.user = {
     name: "Cristian",
     role: "Tecnico",
     email: "test@test.com",
-    ticket: "12"
-
+    ticket: "12",
   };
   next();
-}
+};

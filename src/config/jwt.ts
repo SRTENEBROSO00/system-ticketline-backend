@@ -1,19 +1,21 @@
-import Jwt  from "jsonwebtoken";
+import Jwt from "jsonwebtoken";
+import type { StringValue } from "ms";
 
-const SECRET_KEY = process.env.JWT_SECRET || 'Secret_key';
+const SECRET_KEY = process.env.JWT_SECRET || "ticketline_dev_secret";
+const EXPIRES_IN = (process.env.JWT_EXPIRES_IN || "8h") as StringValue;
 
-// Generar token 
+// Generate JWT token
 export const genToken = (payload: object): string => {
-    return Jwt.sign(payload, SECRET_KEY, {
-        expiresIn: '1h'
-    });
+  return Jwt.sign(payload, SECRET_KEY, {
+    expiresIn: EXPIRES_IN,
+  });
 };
 
-// Verificar el token
+// Verify JWT token
 export const verifyToken = (token: string): any => {
-    try {
-        return Jwt.verify(token, SECRET_KEY)
-    } catch (error) {
-        throw new Error('Token provided')
-    }
+  try {
+    return Jwt.verify(token, SECRET_KEY);
+  } catch (error) {
+    throw new Error("Invalid token");
+  }
 };
